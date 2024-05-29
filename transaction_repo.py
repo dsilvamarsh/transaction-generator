@@ -8,13 +8,13 @@ import db_config
 
 
 class TransactionRepo():
-    def save(self,src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code):
+    def save(self,src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status):
         query = """
-        INSERT INTO core.transaction (src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code)
+        INSERT INTO core.transaction (src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status)
         values
-        (%s,%s,%s,%s,%s) 
+        (%s,%s,%s,%s,%s,%s) 
         """
-        query_params=(src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code)
+        query_params=(src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status)
         try:
             with psycopg.connect(** db_config.load_db_config()) as conn:
                 with conn.cursor() as cursor :
@@ -40,7 +40,8 @@ class TransactionRepo():
                         random.choice(tgt_account_list)[0],
                         random.uniform(100, 1000),
                         random.choice([1, 1.2]),
-                        random.choice(["INR"])
+                        random.choice(["INR"]),
+                        "Pending"
 
                     )
 

@@ -5,7 +5,8 @@ CREATE  TABLE core.transaction(
 	transfer_amount numeric(18,3),
 	create_ts timestamp,
 	exchange_rate numeric(5,3),
-	currency_code varchar(10)
+	currency_code varchar(10),
+	status varchar(20)
 
 ) tablespace dev;
 
