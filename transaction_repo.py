@@ -21,7 +21,19 @@ class TransactionRepo():
                     cursor.execute(query=query,params=query_params)
         except (psycopg.DatabaseError,Exception) as ex:
             print("Database Exception ",ex)
-
+    def generate_transaction(self,src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status,reference):
+        query = """
+        INSERT INTO core.transaction (src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status,reference)
+        values
+        (%s,%s,%s,%s,%s,%s,%s) 
+        """
+        query_params=(src_acc,tgt_acc,transfer_amount,exchange_rate,currency_code,status,reference)
+        try:
+            with psycopg.connect(** db_config.load_db_config()) as conn:
+                with conn.cursor() as cursor :
+                    cursor.execute(query=query,params=query_params)
+        except (psycopg.DatabaseError,Exception) as ex:
+            print("Database Exception ",ex)
     def generate_dummy_transactions(self):
         """This function will generate dummy transactions"""
         cust_repo = customer_repo.CustomerRepo()

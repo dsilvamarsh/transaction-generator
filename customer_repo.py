@@ -1,4 +1,5 @@
 import logging
+import random
 
 import psycopg
 
@@ -6,14 +7,14 @@ import db_config
 from faker import Faker
 
 class CustomerRepo:
-    def save(self ,name,tax_id,email,contact):
+    def save(self ,name,tax_id,email,contact,type):
         """Function to save customer"""
         query="""
-        INSERT INTO core.customer (name,tax_id,email,contact,create_ts)
+        INSERT INTO core.customer (name,tax_id,email,contact,create_ts,type)
         values
-        (%s,%s,%s,%s,current_timestamp)
+        (%s,%s,%s,%s,current_timestamp,%s)
         """
-        query_params=(name,tax_id,email,contact)
+        query_params=(name,tax_id,email,contact,type)
         try:
             with psycopg.connect(**db_config.load_db_config()) as conn:
                 with conn.cursor() as cursor:
@@ -52,13 +53,18 @@ class CustomerRepo:
 
 
     def create_dummy_customers(self):
-        repo = CustomerRepo()
-        # repo.save('Sara','dww3334','sara@gmail.com','33445555')
         fake = Faker()
-        for run in range(1000):
-            repo.save(fake.name(), fake.ssn(), fake.email(), fake.random_number(10))
+        for run in range(100):
+            CustomerRepo().save(
+                fake.name(),
+                fake.ssn(),
+                fake.email(),
+                fake.random_number(10),
+                random.choice(["Business","Saleried","Government Employee","Self Employee"])
+            )
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log=logging.getLogger(__name__)
     cust_repo = CustomerRepo()
-    print(cust_repo.find(2))
+    #print(cust_repo.find(2))
+    cust_repo.create_dummy_customers()

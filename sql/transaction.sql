@@ -1,3 +1,4 @@
+DROP TABLE core.transaction;
 CREATE  TABLE core.transaction(
 	id bigserial primary key,
 	src_acc integer,
@@ -6,7 +7,8 @@ CREATE  TABLE core.transaction(
 	create_ts timestamp,
 	exchange_rate numeric(5,3),
 	currency_code varchar(10),
-	status varchar(20)
+	status varchar(20),
+	reference varchar(500)
 
 ) tablespace dev;
 

@@ -37,6 +37,8 @@ class AccountRepo():
         except (psycopg.DatabaseError , Exception) as ex:
             print(f"Database Error {ex}")
 
+
+
     def find_excluding(self,customer_id):
         query = """
         select * from core.account where customer_id <> %s
@@ -49,6 +51,20 @@ class AccountRepo():
                     return cursor.fetchall()
         except (psycopg.DatabaseError , Exception) as ex:
             print(f"Database Error {ex}")
+    def find_non_business_accounts(self):
+        query = """
+                select acc.* from core.account acc,core.customer cust
+	            where cust.type <> 'Business'
+	            and acc.customer_id = cust.id
+        """
+
+        try:
+            with psycopg.connect(** db_config.load_db_config()) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query=query)
+                    return cursor.fetchall()
+        except (psycopg.DatabaseError , Exception) as ex:
+            print(f"Database Error {ex}")
 
     def create_dummy_accounts(self):
         fake = Faker()
@@ -58,10 +74,10 @@ class AccountRepo():
             # Generate account for each customer
             log.debug(f" Customer info : {customer}")
             accRepo = AccountRepo()
-            accRepo.save(customer[0], random.uniform(100, 10000), random.choice(["Savings", "Current", "Loan"]))
+            accRepo.save(customer[0], random.uniform(100, 10000), random.choice(["Savings", "Current"]))
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log=logging.getLogger(__name__)
     accRepo = AccountRepo()
-    print(accRepo.find(2))
+    accRepo.create_dummy_accounts()
