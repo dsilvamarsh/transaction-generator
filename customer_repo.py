@@ -36,13 +36,29 @@ class CustomerRepo:
             print("Database Error ",ex)
 
 
+    def find(self,customer_id):
+        query ="""
+        select * from core.customer where id= %s;
+        """
+        try:
+            with psycopg.connect(** db_config.load_db_config()) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query=query,params=(customer_id,))
+                    #log.debug("Query Executed succesfully")
+                    print(f"Cursor row size {cursor.rowcount}")
+                    return cursor.fetchone()
+        except (psycopg.DatabaseError , Exception) as ex:
+            print("Database Error ",ex)
 
+
+    def create_dummy_customers(self):
+        repo = CustomerRepo()
+        # repo.save('Sara','dww3334','sara@gmail.com','33445555')
+        fake = Faker()
+        for run in range(1000):
+            repo.save(fake.name(), fake.ssn(), fake.email(), fake.random_number(10))
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log=logging.getLogger(__name__)
-    repo = CustomerRepo()
-    #repo.save('Sara','dww3334','sara@gmail.com','33445555')
-    fake= Faker()
-    for run in range(1000):
-        repo.save(fake.name(),fake.ssn(),fake.email(),fake.random_number(10))
-    #log.debug(f"Customers : {repo.find_all()}")
+    cust_repo = CustomerRepo()
+    print(cust_repo.find(2))
