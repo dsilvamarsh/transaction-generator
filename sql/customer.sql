@@ -1,5 +1,5 @@
 CREATE table core.customer(
-	id serial,
+	id serial primary key,
 	name varchar(100),
 	tax_id varchar(20),
     email varchar(100),
