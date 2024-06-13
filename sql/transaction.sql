@@ -8,7 +8,8 @@ CREATE  TABLE core.transaction(
 	exchange_rate numeric(5,3),
 	currency_code varchar(10),
 	status varchar(20),
-	reference varchar(500)
+	reference varchar(500),
+	expense_id int
 
 ) tablespace dev;
 
