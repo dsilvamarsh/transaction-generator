@@ -50,21 +50,47 @@ class CustomerRepo:
                     return cursor.fetchone()
         except (psycopg.DatabaseError , Exception) as ex:
             print("Database Error ",ex)
+    def find_by_type(self,customer_type):
+        query ="""
+        select * from core.customer where type= %s;
+        """
+        try:
+            with psycopg.connect(** db_config.load_db_config()) as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(query=query,params=(customer_type,))
+                    #log.debug("Query Executed succesfully")
+                    print(f"Cursor row size {cursor.rowcount}")
+                    return cursor.fetchall()
+        except (psycopg.DatabaseError , Exception) as ex:
+            print("Database Error ",ex)
 
 
     def create_dummy_customers(self):
         fake = Faker()
-        for run in range(100):
-            CustomerRepo().save(
+        for run in range(90):
+            self.save(
                 fake.name(),
                 fake.ssn(),
                 fake.email(),
                 fake.random_number(10),
-                random.choice(["Business","Saleried","Government Employee","Self Employee"])
+                random.choice(["Personal"])
             )
+    def create_dummy_business_customers(self):
+        fake = Faker()
+        for run in range(10):
+            self.save(
+                fake.name(),
+                fake.ssn(),
+                fake.email(),
+                fake.random_number(10),
+                "Business"
+                )
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log=logging.getLogger(__name__)
     cust_repo = CustomerRepo()
     #print(cust_repo.find(2))
     cust_repo.create_dummy_customers()
+    cust_repo.create_dummy_business_customers()
+    #cust_repo.find_by_type('Business')

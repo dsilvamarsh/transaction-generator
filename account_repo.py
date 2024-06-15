@@ -51,33 +51,45 @@ class AccountRepo():
                     return cursor.fetchall()
         except (psycopg.DatabaseError , Exception) as ex:
             print(f"Database Error {ex}")
-    def find_non_business_accounts(self):
+    def find_accounts_with_type(self,customer_type):
         query = """
                 select acc.* from core.account acc,core.customer cust
-	            where cust.type <> 'Business'
+	            where cust.type = %s
 	            and acc.customer_id = cust.id
         """
-
+        query_params=(customer_type,)
         try:
             with psycopg.connect(** db_config.load_db_config()) as conn:
                 with conn.cursor() as cursor:
-                    cursor.execute(query=query)
+                    cursor.execute(query=query,params=query_params)
                     return cursor.fetchall()
         except (psycopg.DatabaseError , Exception) as ex:
             print(f"Database Error {ex}")
 
-    def create_dummy_accounts(self):
+    def create_dummy_personal_accounts(self):
         fake = Faker()
         # Fetch all customers and generate accounts for them
         custRepo = customer_repo.CustomerRepo()
-        for customer in custRepo.find_all():
+        for customer in custRepo.find_by_type("Personal"):
             # Generate account for each customer
             log.debug(f" Customer info : {customer}")
             accRepo = AccountRepo()
-            accRepo.save(customer[0], random.uniform(100, 10000), random.choice(["Savings", "Current"]))
-
+            accRepo.save(customer[0], random.uniform(100, 10000), random.choice(["Savings"]))
+    def create_dummy_business_accounts(self):
+        fake = Faker()
+        # Fetch all customers and generate accounts for them
+        custRepo = customer_repo.CustomerRepo()
+        for customer in custRepo.find_by_type("Business"):
+            # Generate account for each customer
+            log.debug(f" Customer info : {customer}")
+            accRepo = AccountRepo()
+            accRepo.save(customer[0],
+                         random.uniform(100, 10000),
+                         random.choice(["Current"])
+                         )
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     log=logging.getLogger(__name__)
     accRepo = AccountRepo()
-    accRepo.create_dummy_accounts()
+    accRepo.create_dummy_personal_accounts()
+    accRepo.create_dummy_business_accounts()
