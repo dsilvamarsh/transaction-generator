@@ -1,6 +1,6 @@
 
-DROP TABLE core.expense;
-create  table core.expense(
+DROP TABLE warehouse.expense;
+create  table warehouse.expense(
 	id integer,
 	name string ,
 	cost decimal(18,3),

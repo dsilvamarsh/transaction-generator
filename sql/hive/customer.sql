@@ -1,5 +1,5 @@
-Drop table core.customer;
-CREATE table core.customer(
+Drop table warehouse.customer;
+CREATE table warehouse.customer(
 	id integer,
 	name string,
 	tax_id string,

@@ -1,5 +1,5 @@
-Drop table core.account;
-CREATE TABLE core.account(
+Drop table warehouse.account;
+CREATE TABLE warehouse.account(
 	id integer,
 	customer_id integer,
 	balance decimal(18,3),
