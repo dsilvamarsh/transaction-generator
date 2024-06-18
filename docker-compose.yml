@@ -1,0 +1,67 @@
+version: "2"
+services:
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      PGDATA: /data/config
+    volumes:
+       - /Users/dsilvamarsh/workspace/data/postgres/config:/data/config
+       - /Users/dsilvamarsh/workspace/data/postgres/data:/data/table_space
+    ports:
+      - "5432:5432"
+    networks:
+      - data
+    restart: always
+
+  metastore:
+    image: apache/hive:4.0.0
+    restart: unless-stopped
+    depends_on: 
+     - postgres
+    container_name: metastore
+    hostname: metastore
+    environment:
+      DB_DRIVER: postgres
+      SERVICE_NAME: 'metastore'
+      SERVICE_OPTS: '-Xmx1G -Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver
+                     -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/hive_metastore_db
+                     -Djavax.jdo.option.ConnectionUserName=dev
+                     -Djavax.jdo.option.ConnectionPassword=dev'
+    ports:
+        - '9083:9083'
+    volumes:
+        - ./warehouse:/opt/hive/data/warehouse
+        - type: bind
+          source: ./postgresql-42.7.3.jar
+          target: /opt/hive/lib/postgres.jar
+    networks:
+      - data
+
+  hiveserver2:
+    image: apache/hive:4.0.0
+    depends_on:
+      - metastore
+    restart: unless-stopped
+    container_name: hiveserver2
+    environment:
+      HIVE_SERVER2_THRIFT_PORT: 10000
+      SERVICE_OPTS: '-Xmx1G -Dhive.metastore.uris=thrift://metastore:9083'
+      IS_RESUME: 'true'
+      SERVICE_NAME: 'hiveserver2'
+    ports:
+      - '10000:10000'
+      - '10002:10002'
+    volumes:
+      - ./warehouse:/opt/hive/data/warehouse
+      - ./sql:/opt/sql
+      - ./data:/opt/data
+    networks:
+      - data
+networks:
+  data:
+    driver: bridge
+
+      
